@@ -1,0 +1,37 @@
+# Compilados Python e cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ambiente virtual
+venv/
+env/
+.venv/
+*.env
+
+# Banco de dados
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# Arquivos de tradução temporários
+*.pot
+
+# VSCode
+.vscode/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos estáticos e de mídia gerados
+/staticfiles/
+staticfiles/
+/media/
+media/
+
+# Outros arquivos gerados por Django (migrations, etc) — normalmente controlados, mas:
+*.mo
