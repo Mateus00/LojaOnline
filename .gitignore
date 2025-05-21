@@ -1,5 +1,7 @@
 # Compilados Python e cache
 __pycache__/
+/migrations/
+migrations/
 *.py[cod]
 *.pyo
 *.pyd
