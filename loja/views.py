@@ -2,23 +2,33 @@ from django.shortcuts import render
 from django.db.models import Sum
 from catalogo.models import Produto
 from carrinho.models import ItemCarrinho
-
+from catalogo.models import Produto, Carrossel, Banner
+from carrinho.models import ItemCarrinho
 
 def carrinho_qtd(request):
-    """Função auxiliar para obter quantidade total de itens no carrinho do usuário."""
     user = request.user
     if user.is_authenticated:
         total = ItemCarrinho.objects.filter(usuario=user).aggregate(total_qtd=Sum('quantidade'))['total_qtd']
         return total or 0
     return 0
 
-
 def home_view(request):
+    carrosseis = Carrossel.objects.all()
+    carrosseis_dinamicos = []
+
+    for carrossel in carrosseis:
+        produtos = Produto.objects.filter(categoria=carrossel.categoria)
+        if produtos.exists():
+            carrosseis_dinamicos.append({
+                'titulo': carrossel.titulo,
+                'produtos': produtos,
+            })
+
     contexto = {
-        #'carrinho_qtd': carrinho_qtd(request),
-        'carrinho_qtd': 2,
-        'produtos': Produto.objects.all()[:5],
-        'produtos_promocao': Produto.objects.filter(promocao=True)
+        'carrinho_qtd': 2,  # ou carrinho_qtd(request)
+        'banners': Banner.objects.all(),
+        'produtos_promocao': Produto.objects.filter(promocao=True),
+        'carrosseis_dinamicos': carrosseis_dinamicos,
     }
     return render(request, 'home.html', contexto)
 

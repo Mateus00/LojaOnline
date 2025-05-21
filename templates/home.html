@@ -2,8 +2,9 @@
 
 {% block extra_css %}
 <style>
+    /* Carrossel principal (destaques) */
     .carousel-img {
-        height: 400px;
+        height: 70dvh;
         object-fit: cover;
     }
 
@@ -21,7 +22,15 @@
         filter: invert(1);
     }
 
-    /* Estilo do carrossel horizontal */
+    .carousel.slide {
+        width: 100vw;
+    }
+
+    .carousel-item {
+        transition: opacity 0.7s ease-in-out;
+    }
+
+    /* Carrossel horizontal (promoções) */
     .stream-carousel {
         position: relative;
     }
@@ -32,6 +41,8 @@
         scroll-behavior: smooth;
         gap: 1rem;
         padding-bottom: 10px;
+        padding-left: 40px;
+        padding-right: 40px;
     }
 
     .scroll-container::-webkit-scrollbar {
@@ -48,6 +59,23 @@
         width: 200px;
         min-height: 300px;
         border: none;
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+    .product-card:nth-child(n) {
+        animation-delay: calc(0.1s * var(--i));
+    }
+
+    @keyframes fadeInUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .scroll-btn {
@@ -61,73 +89,69 @@
         height: 35px;
         z-index: 1;
         cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
     }
 
     .scroll-left {
-        left: -15px;
+        left: 10px;
     }
 
     .scroll-right {
-        right: -15px;
+        right: 10px;
     }
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="container my-5">
-    <h2 class="mb-4 text-center text-primary">Destaques da Loja</h2>
-
-    {% if produtos %}
-    <div id="carouselProdutos" class="carousel slide" data-bs-ride="carousel">
-        <!-- Indicadores -->
-        <div class="carousel-indicators">
-            {% for produto in produtos %}
-                <button type="button" data-bs-target="#carouselProdutos" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
-            {% endfor %}
-        </div>
-
-        <!-- Slides -->
-        <div class="carousel-inner rounded shadow">
-            {% for produto in produtos %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                {% if produto.imagem %}
-                    <img src="{{ produto.imagem.url }}" class="d-block w-100 img-fluid carousel-img" alt="{{ produto.nome }}">
-                {% else %}
-                    <img src="https://via.placeholder.com/1200x400.png?text=Sem+Imagem" class="d-block w-100 img-fluid carousel-img" alt="Sem imagem">
-                {% endif %}
-                <div class="carousel-caption d-none d-md-block rounded">
-                    <h5>{{ produto.nome }}</h5>
-                    <p>{{ produto.descricao|truncatewords:15 }}</p>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Controles -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselProdutos" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Anterior</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselProdutos" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Próximo</span>
-        </button>
+{% block outside_main %}
+{% if banners %}
+<div id="carouselProdutos" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <!-- Indicadores -->
+    <div class="carousel-indicators">
+        {% for banner in banners %}
+            <button type="button" data-bs-target="#carouselProdutos" data-bs-slide-to="{{ forloop.counter0 }}"
+                {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
     </div>
-    {% else %}
-        <p class="text-center">Nenhum produto disponível no momento.</p>
-    {% endif %}
-</div>
 
+    <!-- Slides -->
+    <div class="carousel-inner shadow rounded-0">
+        {% for banner in banners %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            {% if banner.imagem %}
+                <img src="{{ banner.imagem.url }}" class="d-block w-100 carousel-img" alt="{{ banner.titulo }}">
+            {% else %}
+                <img src="https://via.placeholder.com/1200x400.png?text=Sem+Imagem" class="d-block w-100 carousel-img" alt="Sem imagem">
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Controles -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselProdutos" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselProdutos" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Próximo</span>
+    </button>
+</div>
+{% else %}
+    <p class="text-center">Nenhum produto disponível no momento.</p>
+{% endif %}
+{% endblock outside_main %}
+
+{% block content %}
 <!-- Carrossel horizontal estilo streaming -->
 <div class="container my-5">
     <h3 class="mb-3 text-primary">Promoções</h3>
     <div class="stream-carousel">
-        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">
-            ‹
-        </button>
+        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">‹</button>
         <div class="scroll-container" id="streamCarousel">
             {% for produto in produtos_promocao %}
-            <div class="card product-card shadow-sm">
+            <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }}">
                 {% if produto.imagem %}
                     <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 160px; object-fit: cover;">
                 {% else %}
@@ -145,11 +169,39 @@
             </div>
             {% endfor %}
         </div>
-        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">
-            ›
-        </button>
+        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">›</button>
     </div>
 </div>
+
+<!-- Carrosséis dinâmicos por categoria -->
+{% for bloco in carrosseis_dinamicos %}
+<div class="container my-5">
+    <h3 class="mb-3 text-primary">{{ bloco.titulo }}</h3>
+    <div class="stream-carousel">
+        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">‹</button>
+        <div class="scroll-container">
+            {% for produto in bloco.produtos %}
+            <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }}">
+                {% if produto.imagem %}
+                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 160px; object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200x160.png?text=Sem+Imagem" class="card-img-top" alt="Sem imagem">
+                {% endif %}
+                <div class="card-body p-2">
+                    <h6 class="card-title text-truncate">{{ produto.nome }}</h6>
+                    <p class="card-text text-muted small text-truncate">{{ produto.descricao|truncatewords:10 }}</p>
+                    <p class="mb-1">
+                        <span class="text-primary fw-bold">R$ {{ produto.preco }}</span>
+                    </p>
+                    <a href="{% url 'produto_detalhe' produto.id %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">›</button>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
 
 {% block extra_js %}

@@ -14,6 +14,7 @@ class Produto(models.Model):
     preco = models.DecimalField(max_digits=8, decimal_places=2)
     imagem = models.ImageField(upload_to='produtos/')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    banner = models.BooleanField(default=False)
     promocao = models.BooleanField(default=False)
     preco_promocional = models.DecimalField(max_digits=8, decimal_places=2)
     data_adicionado = models.DateTimeField(auto_now_add=True)
@@ -21,3 +22,19 @@ class Produto(models.Model):
 
     def __str__(self):
         return self.nome
+
+class Carrossel(models.Model):
+    titulo = models.CharField(max_length=100)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.titulo
+    
+class Banner(models.Model):
+    titulo = models.CharField(max_length=100)
+    descricao = models.TextField()
+    imagem = models.ImageField(upload_to='produtos/')
+    data_adicionado = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.titulo

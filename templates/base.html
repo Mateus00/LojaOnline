@@ -11,7 +11,7 @@
 
     <style>
         body {
-            background-color: #f0f4ff; /* Azul muito claro para o fundo */
+            background-color:rgba(223, 232, 255, 0.89); /* Azul muito claro para o fundo */
             color: #1a1a1a;
         }
 
@@ -95,6 +95,10 @@
             </div>
         </div>
     </nav>
+
+    <section name="Inicio">
+        {% block outside_main %}{% endblock %}
+    </section>
 
     <main class="container my-4">
         {% block content %}
