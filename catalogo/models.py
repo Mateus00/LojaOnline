@@ -13,6 +13,9 @@ class Produto(models.Model):
     preco = models.DecimalField(max_digits=8, decimal_places=2)
     imagem = models.ImageField(upload_to='produtos/')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    promocao = models.BooleanField(default=False)
+    preco_promocional = models.DecimalField(max_digits=8, decimal_places=2)
+    data_adicionado = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
