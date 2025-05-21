@@ -3,6 +3,7 @@ from .models import Categoria, Produto
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'promocao')
     prepopulated_fields = {"slug": ("nome",)}
 
 @admin.register(Produto)
