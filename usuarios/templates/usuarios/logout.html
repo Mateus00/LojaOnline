@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <h2 class="mb-4">Você saiu da sua conta.</h2>
+        <p><a href="{% url 'usuarios:login' %}" class="btn btn-primary">Entrar novamente</a></p>
+        <p><a href="{% url 'home' %}">Voltar para a página inicial</a></p>
+    </div>
+</div>
+{% endblock %}

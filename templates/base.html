@@ -96,9 +96,9 @@
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">{{ carrinho_qtd }}</span>
               {% endif %}
             </a>
-            <a href="{% url 'logout' %}" class="btn btn-outline-light">Sair</a>
+            <a href="{% url 'usuarios:logout' %}" class="btn btn-outline-light">Sair</a>
           {% else %}
-            <a href="{% url 'login' %}" class="btn btn-outline-light">Entrar</a>
+            <a href="{% url 'usuarios:login' %}" class="btn btn-outline-light">Entrar</a>
           {% endif %}
         </div>
       </div>
