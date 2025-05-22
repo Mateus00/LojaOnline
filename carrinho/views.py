@@ -1,29 +1,80 @@
-from django.shortcuts import render
-from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import ItemCarrinho
+from catalogo.models import Produto
 
 
-class CarrinhoMixin:
-    """Adiciona a quantidade total de itens no carrinho ao contexto."""
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            total = ItemCarrinho.objects.filter(usuario=self.request.user).aggregate(
-                total_qtd=Sum('quantidade')
-            )['total_qtd']
-            context['carrinho_qtd'] = total or 0
+# Utilitários para sessão
+def _get_carrinho(session):
+    return session.get('carrinho', {})
+
+
+def _save_carrinho(session, carrinho):
+    session['carrinho'] = carrinho
+    session.modified = True
+
+
+# Adiciona um produto ao carrinho (agora exige login)
+@login_required(login_url='login')
+def adicionar_ao_carrinho(request, produto_id):
+    produto = get_object_or_404(Produto, id=produto_id)
+
+    carrinho = _get_carrinho(request.session)
+    carrinho[str(produto.id)] = carrinho.get(str(produto.id), 0) + 1
+    _save_carrinho(request.session, carrinho)
+
+    return redirect('carrinho:ver_carrinho')
+
+
+@login_required(login_url='login')
+def remover_do_carrinho(request, produto_id):
+    carrinho = _get_carrinho(request.session)
+    carrinho.pop(str(produto_id), None)
+    _save_carrinho(request.session, carrinho)
+    return redirect('carrinho:ver_carrinho')
+
+
+@login_required(login_url='login')
+def atualizar_carrinho(request, produto_id):
+    if request.method == 'POST':
+        try:
+            quantidade = int(request.POST.get('quantidade', 1))
+        except (ValueError, TypeError):
+            quantidade = 1
+
+        carrinho = _get_carrinho(request.session)
+        produto_id_str = str(produto_id)
+
+        if quantidade > 0:
+            carrinho[produto_id_str] = quantidade
         else:
-            context['carrinho_qtd'] = 0
-        return context
+            carrinho.pop(produto_id_str, None)
+
+        _save_carrinho(request.session, carrinho)
+
+    return redirect('carrinho:ver_carrinho')
 
 
-@login_required
-def carrinho_view(request):
-    """View da página do carrinho de compras."""
-    itens = ItemCarrinho.objects.filter(usuario=request.user)
-    total = sum(item.produto.preco * item.quantidade for item in itens)
-    return render(request, 'carrinho.html', {
-        'itens': itens,
-        'total': total
-    })
+@login_required(login_url='login')
+def carrinho_resumo(request):
+    carrinho = _get_carrinho(request.session)
+    produtos = []
+    total = 0
+
+    for produto_id_str, quantidade in carrinho.items():
+        produto = get_object_or_404(Produto, id=int(produto_id_str))
+        preco = produto.preco_promocional or produto.preco
+        subtotal = preco * quantidade
+        total += subtotal
+
+        produtos.append({
+            'produto': produto,
+            'quantidade': quantidade,
+            'subtotal': subtotal,
+        })
+
+    context = {
+        'produtos': produtos,
+        'total': total,
+    }
+
+    return render(request, 'carrinho/resumo.html', context)

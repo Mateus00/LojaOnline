@@ -8,4 +8,9 @@ class ItemCarrinho(models.Model):
     quantidade = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.quantidade} x {self.produto.nome}"
+        return f'{self.quantidade} x {self.produto.nome}'
+
+    def get_total_preco(self):
+        preco_unit = self.produto.preco_promocional or self.produto.preco
+        return preco_unit * self.quantidade
+
