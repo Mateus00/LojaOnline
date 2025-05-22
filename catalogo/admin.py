@@ -8,7 +8,7 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'descricao', 'preco', 'categoria', 'banner', 'promocao', 'preco_promocional', 'data_adicionado')
+    list_display = ('nome', 'descricao', 'preco', 'categoria', 'banner', 'promocao', 'preco_promocional', 'data_adicionado', 'slug')
     prepopulated_fields = {"slug": ("nome",)}
     list_filter = ('categoria',)
     search_fields = ('nome',)
@@ -19,4 +19,4 @@ class CarrosselAdmin(admin.ModelAdmin):
     
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'descricao', 'data_adicionado')
+    list_display = ('titulo', 'descricao', 'data_adicionado', 'slug')

@@ -30,7 +30,6 @@ urlpatterns = [
 
     # Rotas do app carrinho, prefixo /carrinho/
     path('carrinho/', include('carrinho.urls')), # Se você criou urls.py dentro do app carrinho
-    path('produtos/', views.produtos_view, name='produtos'),
     path('sobre/', views.sobre_view, name='sobre'),
     path('contato/', views.contato_view, name='contato'),
 ]

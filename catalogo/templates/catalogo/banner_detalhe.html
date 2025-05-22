@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-center my-4 text-primary">{{ banner.titulo }}</h2>
+<p class="text-center text-muted">{{ banner.descricao }}</p>
+
+{% for bloco in carrosseis_dinamicos %}
+<div class="container my-5">
+    <h3 class="mb-3 text-primary">{{ bloco.titulo }}</h3>
+    <div class="stream-carousel">
+        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">‹</button>
+        <div class="scroll-container">
+            {% for produto in bloco.produtos %}
+            <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }}">
+                {% if produto.imagem %}
+                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 160px; object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200x160.png?text=Sem+Imagem" class="card-img-top" alt="Sem imagem">
+                {% endif %}
+                <div class="card-body p-2">
+                    <h6 class="card-title text-truncate">{{ produto.nome }}</h6>
+                    <p class="card-text text-muted small text-truncate">{{ produto.descricao|truncatewords:10 }}</p>
+                    <p class="mb-1"><span class="text-primary fw-bold">R$ {{ produto.preco }}</span></p>
+                    <a href="{% url 'produto_detalhe' produto.slug %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">›</button>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function scrollCarousel(direction) {
+        const container = document.querySelector('.scroll-container');
+        const scrollAmount = 220;
+        container.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+</script>
+{% endblock %}

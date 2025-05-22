@@ -17,7 +17,7 @@ def home_view(request):
     carrosseis_dinamicos = []
 
     for carrossel in carrosseis:
-        produtos = Produto.objects.filter(categoria=carrossel.categoria)
+        produtos = carrossel.produtos()
         if produtos.exists():
             carrosseis_dinamicos.append({
                 'titulo': carrossel.titulo,
@@ -25,9 +25,8 @@ def home_view(request):
             })
 
     contexto = {
-        'carrinho_qtd': 2,  # ou carrinho_qtd(request)
+        'carrinho_qtd': carrinho_qtd(request),  # Se preferir, fixe como 2
         'banners': Banner.objects.all(),
-        'produtos_promocao': Produto.objects.filter(promocao=True),
         'carrosseis_dinamicos': carrosseis_dinamicos,
     }
     return render(request, 'home.html', contexto)

@@ -119,11 +119,13 @@
     <div class="carousel-inner shadow rounded-0">
         {% for banner in banners %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            {% if banner.imagem %}
-                <img src="{{ banner.imagem.url }}" class="d-block w-100 carousel-img" alt="{{ banner.titulo }}">
-            {% else %}
-                <img src="https://via.placeholder.com/1200x400.png?text=Sem+Imagem" class="d-block w-100 carousel-img" alt="Sem imagem">
-            {% endif %}
+            <a href="{% url 'banner_detalhe' banner.id %}">
+                {% if banner.imagem %}
+                    <img src="{{ banner.imagem.url }}" class="d-block w-100 carousel-img" alt="{{ banner.titulo }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/1200x400.png?text=Sem+Imagem" class="d-block w-100 carousel-img" alt="Sem imagem">
+                {% endif %}
+            </a>
         </div>
         {% endfor %}
     </div>
@@ -144,43 +146,14 @@
 {% endblock outside_main %}
 
 {% block content %}
-<!-- Carrossel horizontal estilo streaming -->
-<div class="container my-5">
-    <h3 class="mb-3 text-primary">Promoções</h3>
-    <div class="stream-carousel">
-        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">‹</button>
-        <div class="scroll-container" id="streamCarousel">
-            {% for produto in produtos_promocao %}
-            <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }}">
-                {% if produto.imagem %}
-                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 160px; object-fit: cover;">
-                {% else %}
-                    <img src="https://via.placeholder.com/200x160.png?text=Sem+Imagem" class="card-img-top" alt="Sem imagem">
-                {% endif %}
-                <div class="card-body p-2">
-                    <h6 class="card-title text-truncate">{{ produto.nome }}</h6>
-                    <p class="card-text text-muted small text-truncate">{{ produto.descricao|truncatewords:10 }}</p>
-                    <p class="mb-1">
-                        <span class="text-danger fw-bold">R$ {{ produto.preco_promocional }}</span>
-                        <small class="text-muted text-decoration-line-through">R$ {{ produto.preco }}</small>
-                    </p>
-                    <a href="{% url 'produto_detalhe' produto.id %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">›</button>
-    </div>
-</div>
-
 <!-- Carrosséis dinâmicos por categoria -->
-{% for bloco in carrosseis_dinamicos %}
+{% for carrossel in carrosseis_dinamicos %}
 <div class="container my-5">
-    <h3 class="mb-3 text-primary">{{ bloco.titulo }}</h3>
+    <h3 class="mb-3 text-primary">{{ carrossel.titulo }}</h3>
     <div class="stream-carousel">
-        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">‹</button>
+        <button class="scroll-btn scroll-left" onclick="scrollCarousel(this, -1)">‹</button>
         <div class="scroll-container">
-            {% for produto in bloco.produtos %}
+            {% for produto in carrossel.produtos %}
             <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }}">
                 {% if produto.imagem %}
                     <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 160px; object-fit: cover;">
@@ -191,14 +164,19 @@
                     <h6 class="card-title text-truncate">{{ produto.nome }}</h6>
                     <p class="card-text text-muted small text-truncate">{{ produto.descricao|truncatewords:10 }}</p>
                     <p class="mb-1">
-                        <span class="text-primary fw-bold">R$ {{ produto.preco }}</span>
+                        {% if produto.promocao %}
+                            <span class="text-danger fw-bold">R$ {{ produto.preco_promocional }}</span>
+                            <span class="text-muted text-decoration-line-through small">R$ {{ produto.preco }}</span>
+                        {% else %}
+                            <span class="text-primary fw-bold">R$ {{ produto.preco }}</span>
+                        {% endif %}
                     </p>
-                    <a href="{% url 'produto_detalhe' produto.id %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
+                    <a href="{% url 'produto_detalhe' produto.slug %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
                 </div>
             </div>
             {% endfor %}
         </div>
-        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">›</button>
+        <button class="scroll-btn scroll-right" onclick="scrollCarousel(this, 1)">›</button>
     </div>
 </div>
 {% endfor %}
@@ -206,8 +184,8 @@
 
 {% block extra_js %}
 <script>
-    function scrollCarousel(direction) {
-        const container = document.getElementById('streamCarousel');
+    function scrollCarousel(button, direction) {
+        const container = button.parentElement.querySelector('.scroll-container');
         const scrollAmount = 220;
         container.scrollBy({
             left: direction * scrollAmount,
