@@ -1,32 +1,185 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<h2 class="text-center my-4 text-primary">{{ banner.titulo }}</h2>
-<p class="text-center text-muted">{{ banner.descricao }}</p>
+{% block extra_css %}
+<style>
+    .banner-destaque {
+        position: relative;
+        width: 100%;
+        height: 60dvh;
+        overflow: hidden;
+    }
 
-{% for bloco in carrosseis_dinamicos %}
+    .banner-destaque img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .banner-destaque .caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+    }
+
+    .carousel-img {
+        height: 70dvh;
+        object-fit: cover;
+    }
+
+    .carousel-caption {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: #fff;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        background-color: #ffc107;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1);
+    }
+
+    .carousel.slide {
+        width: 100vw;
+    }
+
+    .carousel-item {
+        transition: opacity 0.7s ease-in-out;
+    }
+
+    .stream-carousel {
+        position: relative;
+    }
+
+    .scroll-container {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 1rem;
+        padding: 0 40px 10px;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+    }
+
+    .product-card {
+        flex: 0 0 auto;
+        width: 200px;
+        min-height: 300px;
+        border: none;
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-card:nth-child(n) {
+        animation-delay: calc(0.1s * var(--i));
+    }
+
+    @keyframes fadeInUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .scroll-btn {
+        position: absolute;
+        top: 35%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        z-index: 1;
+        cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .scroll-left {
+        left: 10px;
+    }
+
+    .scroll-right {
+        right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Banner em destaque -->
+<div class="banner-destaque mb-4 shadow">
+    {% if banner.imagem %}
+        <img src="{{ banner.imagem.url }}" alt="{{ banner.titulo }}">
+    {% else %}
+        <img src="https://via.placeholder.com/1200x400.png?text=Sem+Imagem" alt="Sem imagem">
+    {% endif %}
+    <div class="caption">
+        <h2 class="mb-1">{{ banner.titulo }}</h2>
+        <p class="mb-0">{{ banner.descricao }}</p>
+    </div>
+</div>
+
+<!-- Carrosseis de produtos relacionados -->
+{% for carrossel in carrosseis_dinamicos %}
 <div class="container my-5">
-    <h3 class="mb-3 text-primary">{{ bloco.titulo }}</h3>
+    <h3 class="mb-3 text-primary">{{ carrossel.titulo }}</h3>
     <div class="stream-carousel">
-        <button class="scroll-btn scroll-left" onclick="scrollCarousel(-1)">‹</button>
+        <button class="scroll-btn scroll-left" onclick="scrollCarousel(this, -1)">‹</button>
         <div class="scroll-container">
-            {% for produto in bloco.produtos %}
-            <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }}">
+            {% for produto in carrossel.produtos %}
+            <div class="card product-card shadow-sm" style="--i:{{ forloop.counter }};">
                 {% if produto.imagem %}
                     <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 160px; object-fit: cover;">
                 {% else %}
                     <img src="https://via.placeholder.com/200x160.png?text=Sem+Imagem" class="card-img-top" alt="Sem imagem">
                 {% endif %}
-                <div class="card-body p-2">
-                    <h6 class="card-title text-truncate">{{ produto.nome }}</h6>
-                    <p class="card-text text-muted small text-truncate">{{ produto.descricao|truncatewords:10 }}</p>
-                    <p class="mb-1"><span class="text-primary fw-bold">R$ {{ produto.preco }}</span></p>
-                    <a href="{% url 'produto_detalhe' produto.slug %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
+                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="card-title text-truncate">{{ produto.nome }}</h6>
+                        <p class="card-text text-muted small text-truncate">{{ produto.descricao|truncatewords:10 }}</p>
+                        <p class="mb-1">
+                            {% if produto.promocao %}
+                                <span class="text-danger fw-bold">R$ {{ produto.preco_promocional }}</span>
+                                <span class="text-muted text-decoration-line-through small">R$ {{ produto.preco }}</span>
+                            {% else %}
+                                <span class="text-primary fw-bold">R$ {{ produto.preco }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'produto_detalhe' produto.slug %}" class="btn btn-sm btn-primary w-100">Ver mais</a>
+                        {% if user.is_authenticated %}
+                            <form class="form-adicionar-carrinho d-grid gap-2" data-id="{{ produto.id }}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success w-100">Adicionar ao carrinho</button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-        <button class="scroll-btn scroll-right" onclick="scrollCarousel(1)">›</button>
+        <button class="scroll-btn scroll-right" onclick="scrollCarousel(this, 1)">›</button>
     </div>
 </div>
 {% endfor %}
@@ -34,8 +187,8 @@
 
 {% block extra_js %}
 <script>
-    function scrollCarousel(direction) {
-        const container = document.querySelector('.scroll-container');
+    function scrollCarousel(button, direction) {
+        const container = button.parentElement.querySelector('.scroll-container');
         const scrollAmount = 220;
         container.scrollBy({
             left: direction * scrollAmount,

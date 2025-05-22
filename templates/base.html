@@ -58,6 +58,7 @@
     </style>
 
     {% block extra_css %}
+
     {% endblock %}
   </head>
   <body>
@@ -92,10 +93,13 @@
           <!-- Carrinho com contador -->
           {% if user.is_authenticated %}
             <a href="{% url 'carrinho:ver_carrinho' %}" class="btn btn-outline-light position-relative me-2">
-              🛒{% if carrinho_qtd %}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">{{ carrinho_qtd }}</span>
-              {% endif %}
+              🛒<span id="carrinho-contador-wrapper">
+                  {% if carrinho_qtd %}
+                    <span id="carrinho-contador" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">{{ carrinho_qtd }}</span>
+                  {% endif %}
+              </span>
             </a>
+
             <a href="{% url 'usuarios:logout' %}" class="btn btn-outline-light">Sair</a>
           {% else %}
             <a href="{% url 'usuarios:login' %}" class="btn btn-outline-light">Entrar</a>
@@ -106,11 +110,13 @@
 
     <section name="Inicio">
       {% block outside_main %}
+
       {% endblock %}
     </section>
 
     <main class="container my-4">
       {% block content %}
+
       {% endblock %}
     </main>
 
@@ -156,6 +162,44 @@
 
     <script src="https://unpkg.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const forms = document.querySelectorAll('.form-adicionar-carrinho')
+        
+          forms.forEach((form) => {
+            form.addEventListener('submit', function (e) {
+              e.preventDefault()
+        
+              const produtoId = this.getAttribute('data-id')
+              const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value
+        
+              fetch("{% url 'carrinho:adicionar_ajax' %}", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-CSRFToken': csrfToken
+                },
+                body: new URLSearchParams({
+                  produto_id: produtoId
+                })
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.status === 'ok') {
+                    // Atualiza dinamicamente o contador do carrinho
+                    let wrapper = document.getElementById('carrinho-contador-wrapper')
+                    if (wrapper) {
+                      wrapper.innerHTML = `
+                                            <span id="carrinho-contador" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+                                                ${data.total_itens}
+                                            </span>`
+                    }
+                  }
+                })
+            })
+          })
+        })
+      </script>
     {% endblock %}
   </body>
 </html>

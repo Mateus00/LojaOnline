@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from catalogo.models import Produto
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 
 # Utilitários para sessão
@@ -11,6 +13,21 @@ def _get_carrinho(session):
 def _save_carrinho(session, carrinho):
     session['carrinho'] = carrinho
     session.modified = True
+
+
+@require_POST
+@login_required
+def adicionar_ajax(request):
+    produto_id = request.POST.get('produto_id')
+    carrinho = request.session.get('carrinho', {})
+
+    if produto_id:
+        carrinho[produto_id] = carrinho.get(produto_id, 0) + 1
+        request.session['carrinho'] = carrinho
+        total_itens = sum(carrinho.values())
+        return JsonResponse({'status': 'ok', 'total_itens': total_itens})
+
+    return JsonResponse({'status': 'erro'}, status=400)
 
 
 # Adiciona um produto ao carrinho (agora exige login)
