@@ -6,19 +6,23 @@ def produto_detalhe(request, slug):
     return render(request, 'catalogo/produto_detalhe.html', {'produto': produto})
 
 def lista_produtos(request):
-    produtos = Produto.objects.all()
+    # Obtém todos os produtos e filtra os que têm estoque usando o método quantidade_estoque()
+    produtos = [produto for produto in Produto.objects.all() if produto.quantidade_estoque() > 0]
     return render(request, 'catalogo/lista_produtos.html', {'produtos': produtos})
 
 def banner_detalhe(request, slug):
     banner = get_object_or_404(Banner, slug=slug)
-    
     carrosseis_dinamicos = []
-    
+
     categorias_relacionadas = banner.categoria.all()
 
     for categoria in categorias_relacionadas:
-        produtos_em_promocao = Produto.objects.filter(categoria=categoria, promocao=True)
-        if produtos_em_promocao.exists():
+        # Filtra produtos em promoção da categoria e com estoque > 0
+        produtos_em_promocao = [
+            produto for produto in Produto.objects.filter(categoria=categoria, promocao=True)
+            if produto.quantidade_estoque() > 0
+        ]
+        if produtos_em_promocao:
             carrosseis_dinamicos.append({
                 'titulo': categoria.nome,
                 'produtos': produtos_em_promocao

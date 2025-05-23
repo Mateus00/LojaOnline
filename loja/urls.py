@@ -14,6 +14,10 @@ urlpatterns = [
     # Aqui o namespace usuarios e o app_name devem bater, como você já tem no usuarios/urls.py
     path('usuario/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')), 
     
+    path('estoque/', include(('estoque.urls', 'estoque'), namespace='estoque')),
+    
+    path('pedidos/', include(('pedidos.urls', 'pedidos'), namespace='pedidos')), 
+    
     path('sobre/', views.sobre_view, name='sobre'),
     path('contato/', views.contato_view, name='contato'),
 ]

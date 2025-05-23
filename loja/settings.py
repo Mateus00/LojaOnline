@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "carrinho",
     "pedidos",
     "pagamentos",
+    'estoque.apps.EstoqueConfig',
 ]
 
 MIDDLEWARE = [

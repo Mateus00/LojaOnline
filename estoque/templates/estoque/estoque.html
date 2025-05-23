@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Controle de Estoque</h2>
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Quantidade</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in estoque %}
+      <tr>
+        <td>{{ item.produto.nome }}</td>
+        <td>{{ item.quantidade }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'estoque:movimento_estoque_view' %}" class="btn btn-primary mt-3">Registrar Movimento</a>
+</div>
+{% endblock %}

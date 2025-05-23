@@ -1,25 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container my-5">
+  <div class="container my-5">
     <div class="row">
-        <div class="col-md-6">
-            {% if produto.imagem %}
-                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="img-fluid rounded shadow">
-            {% else %}
-                <img src="https://via.placeholder.com/600x400.png?text=Sem+Imagem" class="img-fluid rounded shadow">
-            {% endif %}
-        </div>
-        <div class="col-md-6">
-            <h2>{{ produto.nome }}</h2>
-            <p class="text-muted">{{ produto.descricao }}</p>
-            <h4 class="text-primary">R$ {{ produto.preco }}</h4>
-            {% if produto.promocao %}
-                <span class="badge bg-warning text-dark">Promoção</span>
-            {% endif %}
-            <hr>
-            <a href="{% url 'carrinho:adicionar' produto.id %}" class="btn btn-success">Adicionar ao carrinho</a>
-        </div>
+      <div class="col-md-6">
+        {% if produto.imagem %}
+          <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="img-fluid rounded shadow" />
+        {% else %}
+          <img src="https://via.placeholder.com/600x400.png?text=Sem+Imagem" class="img-fluid rounded shadow" />
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <h2>{{ produto.nome }}</h2>
+        <p class="text-muted">{{ produto.descricao }}</p>
+        <h4 class="text-primary">R$ {{ produto.preco }}</h4>
+        {% if produto.promocao %}
+          <span class="badge bg-warning text-dark">Promoção</span>
+        {% endif %}
+        <hr />
+        {% if produto.quantidade_estoque() > 0 %}
+          <a href="{% url 'carrinho:adicionar' produto.id %}" class="btn btn-success">Adicionar ao carrinho</a>
+        {% else %}
+          <p class="text-danger">Produto fora de estoque</p>
+        {% endif %}
+      </div>
     </div>
-</div>
+  </div>
 {% endblock %}
