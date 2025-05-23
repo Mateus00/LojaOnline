@@ -6,12 +6,8 @@ from catalogo.models import Produto, Carrossel, Banner
 from carrinho.models import ItemCarrinho
 
 def carrinho_qtd(request):
-    if request.user.is_authenticated:
-        total = ItemCarrinho.objects.filter(usuario=request.user).aggregate(total_qtd=Sum('quantidade'))['total_qtd']
-        return total or 0
-    else:
-        carrinho = request.session.get('carrinho', {})
-        return sum(carrinho.values())
+    carrinho = request.session.get('carrinho', {})
+    return sum(carrinho.values())
 
 def home_view(request):
     carrosseis = Carrossel.objects.all()

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load pix_tags %}
+{% block content %}
+<div class="text-center">
+    <h2>Pagamento via PIX</h2>
+    <p>Escaneie o QR Code abaixo para pagar:</p>
+
+    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code PIX" class="img-fluid my-3" style="max-width: 300px;">
+
+    <p><strong>Chave PIX:</strong> {{ pix_info.chave|mascarar_pix }}</p>
+    <p><strong>Valor:</strong> {{ pix_info.valor }}</p>
+
+    <a href="{{ whatsapp_link }}" class="btn btn-success mt-4">Já paguei - Enviar Pedido via WhatsApp</a>
+</div>
+{% endblock %}

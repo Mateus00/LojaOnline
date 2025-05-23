@@ -1,42 +1,70 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Resumo do Carrinho</h2>
+<div class="container py-4">
+  <h2 class="mb-4 fade-slide-up">Resumo do Pedido</h2>
 
-{% if produtos %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Preço unitário</th>
-            <th>Subtotal</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in produtos %}
-        <tr>
-            <td>{{ item.produto.nome }}</td>
-            <td>
-                <form action="{% url 'carrinho:atualizar' item.produto.id %}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <input type="number" name="quantidade" min="1" value="{{ item.quantidade }}" style="width: 60px;">
-                    <button type="submit" class="btn btn-sm btn-primary">Atualizar</button>
-                </form>
-            </td>
-            <td>R$ {{ item.produto.preco_promocional|default:item.produto.preco }}</td>
-            <td>R$ {{ item.subtotal }}</td>
-            <td>
-                <a href="{% url 'carrinho:remover' item.produto.id %}" class="btn btn-sm btn-danger">Remover</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<h4>Total: R$ {{ total }}</h4>
-<a href="#" class="btn btn-success">Finalizar Compra</a>
-{% else %}
-<p>Seu carrinho está vazio.</p>
-{% endif %}
+  {% if produtos %}
+    <div class="row">
+      <!-- Coluna: Itens do Carrinho -->
+      <div class="col-md-7 fade-slide-up">
+        <div class="card mb-4 shadow-sm rounded-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Produtos no Carrinho</h5>
+            <ul class="list-group list-group-flush">
+              {% for item in produtos %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="ms-2 me-auto">
+                    <div class="fw-bold">{{ item.produto.nome }}</div>
+                    <small>Quantidade: {{ item.quantidade }}</small><br>
+                    <small>Preço unitário: R$ {{ item.produto.preco_promocional|default:item.produto.preco }}</small>
+                  </div>
+                  <div class="text-end">
+                    <strong>R$ {{ item.subtotal }}</strong><br>
+                    <a href="{% url 'carrinho:remover' item.produto.id %}" class="btn btn-sm btn-outline-danger mt-2">Remover</a>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+            <div class="mt-4 text-end">
+              <h5>Total: <strong>R$ {{ total }}</strong></h5>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna: Dados para Pagamento -->
+      <div class="col-md-5 fade-slide-up">
+        <div class="card shadow-sm rounded-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Finalizar Compra</h5>
+            <form method="post" action="{% url 'carrinho:finalizar_compra' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="endereco" class="form-label">Endereço para entrega <small class="text-muted">(opcional)</small></label>
+                <textarea name="endereco" id="endereco" class="form-control" rows="2" placeholder="Rua Exemplo, 123, Bairro..."></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="pagamento" class="form-label">Forma de pagamento</label>
+                <select name="pagamento" id="pagamento" class="form-select" required>
+                  <option value="">Selecione</option>
+                  <option value="pix">PIX</option>
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="cartao">Cartão</option>
+                </select>
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-success btn-lg">Finalizar Compra via WhatsApp</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-info mt-4 fade-slide-up">
+      Seu carrinho está vazio.
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

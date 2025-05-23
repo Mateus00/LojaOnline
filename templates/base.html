@@ -55,6 +55,16 @@
       footer a:hover {
         color: #fff;
       }
+      
+      .fade-slide-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+      .fade-slide-up.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
     </style>
 
     {% block extra_css %}
@@ -94,9 +104,9 @@
           {% if user.is_authenticated %}
             <a href="{% url 'carrinho:ver_carrinho' %}" class="btn btn-outline-light position-relative me-2">
               🛒<span id="carrinho-contador-wrapper">
-                  {% if carrinho_qtd %}
-                    <span id="carrinho-contador" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">{{ carrinho_qtd }}</span>
-                  {% endif %}
+                {% if carrinho_qtd %}
+                  <span id="carrinho-contador" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">{{ carrinho_qtd }}</span>
+                {% endif %}
               </span>
             </a>
 
@@ -162,44 +172,26 @@
 
     <script src="https://unpkg.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}
-      <script>
-        document.addEventListener('DOMContentLoaded', function () {
-          const forms = document.querySelectorAll('.form-adicionar-carrinho')
-        
-          forms.forEach((form) => {
-            form.addEventListener('submit', function (e) {
-              e.preventDefault()
-        
-              const produtoId = this.getAttribute('data-id')
-              const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value
-        
-              fetch("{% url 'carrinho:adicionar_ajax' %}", {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'X-CSRFToken': csrfToken
-                },
-                body: new URLSearchParams({
-                  produto_id: produtoId
-                })
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  if (data.status === 'ok') {
-                    // Atualiza dinamicamente o contador do carrinho
-                    let wrapper = document.getElementById('carrinho-contador-wrapper')
-                    if (wrapper) {
-                      wrapper.innerHTML = `
-                                            <span id="carrinho-contador" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
-                                                ${data.total_itens}
-                                            </span>`
-                    }
-                  }
-                })
-            })
-          })
-        })
-      </script>
+
     {% endblock %}
+    <script>
+      function scrollCarousel(button, direction) {
+        const container = button.parentElement.querySelector('.scroll-container')
+        const scrollAmount = 220
+        container.scrollBy({
+          left: direction * scrollAmount,
+          behavior: 'smooth'
+        })
+      }
+    </script>
+    <script>
+      // Animação fade-slide-up
+      const elements = document.querySelectorAll('.fade-slide-up')
+      elements.forEach((el, i) => {
+        setTimeout(() => {
+          el.classList.add('show')
+        }, i * 150)
+      })
+    </script>
   </body>
 </html>

@@ -1,103 +1,103 @@
 {% extends 'base.html' %}
 
 {% block extra_css %}
-<style>
-  .banner-destaque {
-    position: relative;
-    width: 100%;
-    height: 70dvh;
-    overflow: hidden;
-  }
-
-  .carousel-inner,
-  .carousel-item,
-  .banner-destaque img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .banner-destaque .caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-  }
-
-  .stream-carousel {
-    position: relative;
-  }
-
-  .scroll-container {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    gap: 1rem;
-    padding: 0 40px 10px;
-  }
-
-  .scroll-container::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .scroll-container::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-  }
-
-  .product-card {
-    flex: 0 0 auto;
-    width: 200px;
-    min-height: 300px;
-    border: none;
-    animation: fadeInUp 0.6s ease forwards;
-    opacity: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .product-card:nth-child(n) {
-    animation-delay: calc(0.1s * var(--i));
-  }
-
-  @keyframes fadeInUp {
-    from {
-      transform: translateY(20px);
+  <style>
+    .banner-destaque {
+      position: relative;
+      width: 100%;
+      height: 70dvh;
+      overflow: hidden;
+    }
+    
+    .carousel-inner,
+    .carousel-item,
+    .banner-destaque img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .banner-destaque .caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+    }
+    
+    .stream-carousel {
+      position: relative;
+    }
+    
+    .scroll-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      gap: 1rem;
+      padding: 0 40px 10px;
+    }
+    
+    .scroll-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .scroll-container::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 4px;
+    }
+    
+    .product-card {
+      flex: 0 0 auto;
+      width: 200px;
+      min-height: 300px;
+      border: none;
+      animation: fadeInUp 0.6s ease forwards;
       opacity: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    to {
-      transform: translateY(0);
-      opacity: 1;
+    
+    .product-card:nth-child(n) {
+      animation-delay: calc(0.1s * var(--i));
     }
-  }
-
-  .scroll-btn {
-    position: absolute;
-    top: 35%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    z-index: 1;
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .scroll-left {
-    left: 10px;
-  }
-
-  .scroll-right {
-    right: 10px;
-  }
-</style>
+    
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .scroll-btn {
+      position: absolute;
+      top: 35%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      z-index: 1;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    .scroll-left {
+      left: 10px;
+    }
+    
+    .scroll-right {
+      right: 10px;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -182,13 +182,51 @@
 
 {% block extra_js %}
   <script>
-    function scrollCarousel(button, direction) {
-      const container = button.parentElement.querySelector('.scroll-container')
-      const scrollAmount = 220
-      container.scrollBy({
-        left: direction * scrollAmount,
-        behavior: 'smooth'
+    // Captura todos os formulários de adição ao carrinho
+    document.querySelectorAll('.form-adicionar-carrinho').forEach((form) => {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault()
+    
+        const produtoId = this.dataset.id
+        const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value
+    
+        fetch("{% url 'carrinho:adicionar_ajax' %}", {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `produto_id=${produtoId}`
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === 'ok') {
+              // Atualiza o número no contador do carrinho
+              const contador = document.getElementById('carrinho-contador')
+              const wrapper = document.getElementById('carrinho-contador-wrapper')
+    
+              if (contador) {
+                contador.textContent = data.total_itens
+              } else if (wrapper) {
+                // Se o contador ainda não existe, cria e insere
+                const novoContador = document.createElement('span')
+                novoContador.id = 'carrinho-contador'
+                novoContador.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark'
+                novoContador.textContent = data.total_itens
+                wrapper.appendChild(novoContador)
+              }
+    
+              // Feedback opcional
+              // alert('Produto adicionado ao carrinho! Total de itens: ' + data.total_itens)
+            } else {
+              alert('Erro: ' + data.mensagem)
+            }
+          })
+          .catch((error) => {
+            console.error('Erro na requisição AJAX:', error)
+            alert('Erro ao adicionar produto ao carrinho.')
+          })
       })
-    }
+    })
   </script>
 {% endblock %}

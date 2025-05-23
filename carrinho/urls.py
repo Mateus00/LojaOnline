@@ -9,4 +9,5 @@ urlpatterns = [
     path('adicionar-ajax/', views.adicionar_ajax, name='adicionar_ajax'),
     path('remover/<int:produto_id>/', views.remover_do_carrinho, name='remover'),
     path('atualizar/<int:produto_id>/', views.atualizar_carrinho, name='atualizar'),  # Corrigido o nome da view
+    path('finalizar/', views.finalizar_compra, name='finalizar_compra'),
 ]
