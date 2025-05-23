@@ -5,6 +5,7 @@ migrations/
 *.py[cod]
 *.pyo
 *.pyd
+requirements-dev.txt
 
 # Ambiente virtual
 venv/
